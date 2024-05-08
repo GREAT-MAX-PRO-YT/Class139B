@@ -1,18 +1,28 @@
 from flask import Flask, render_template, url_for, request, jsonify
+
+import threading
+from pyngrok import ngrok
+
 from model_prediction import * 
 from predict_response import *
 
-#libreria para exponer la api a una url publica
-from flask_ngrok import run_with_ngrok
+
 
  
 app = Flask(__name__)
+port = "5000"
+
+public_url = ngrok.connect(port).public_url
+print(public_url)
+
+app.config["BASE_URL"] = public_url
+
 
 predicted_emotion=""
 predicted_emotion_img_url=""
 
 # correr la api en url publica
-run_with_ngrok(app)
+#run_with_ngrok(app)
 
 
 @app.route('/')
@@ -81,4 +91,5 @@ def bot():
 
     return jsonify(response)     
      
-app.run()
+#app.run()
+threading.Thread(target=app.run, kwargs={"use_reloader": False}).start()
